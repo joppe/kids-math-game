@@ -2,9 +2,25 @@
 <html>
 	<head>
 		<title>Kids math game</title>
+		<script type="text/javascript" src="javascript/exception.js"></script>
+		<script type="text/javascript" src="javascript/template.js"></script>
+		<script type="text/javascript" src="javascript/game.js"></script>
+		<script type="text/javascript">
+		window.document.addEventListener('DOMContentLoaded', function () {
+    		console.log(Template.render('start-screen-template', {
+    		    title: 'Hello world!',
+    		    arr: ['foo', 'bar']
+    		}));
+		});
+		</script>
 	</head>
 
 	<body>
-		<h1></h1>
+		<script type="text/js-template" id="start-screen-template">
+		    <h1>{{ _context.title }}</h1>
+		    {% for (var i = 0; i < _context.arr.length; i += 1) { %}
+		        <p>{{ _context.arr[i] }}</p>
+		    {% } %}
+		</script>
 	</body>
 </html>
