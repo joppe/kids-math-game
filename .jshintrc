@@ -1,0 +1,13 @@
+{
+    "strict": false,
+    "undef": false,
+    "unused": false,
+    "camelcase": false,
+    "curly": false,
+    "eqeqeq": false,
+    "immed": false,
+    "latedef": false,
+    "newcap": false,
+    "noarg": false,
+    "quotmark": false
+}

@@ -1,0 +1,4 @@
+bower-components/
+.idea/
+config/google-chrome
+config/phantomjs
