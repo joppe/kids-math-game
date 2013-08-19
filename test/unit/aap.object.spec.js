@@ -20,4 +20,16 @@ describe('Object checking', function () {
             expect(Aap.Object.extend(t, s)).toEqual({foo: 'bar'});
         });
     });
+
+    describe('keys', function () {
+        it('should return all the keys of a given object', function () {
+            var o = {
+                    foo: 'foo',
+                    bar: 'foo',
+                    foobar: 'foo'
+                };
+
+            expect(Aap.Object.keys(o)).toEqual(['foo', 'bar', 'foobar']);
+        });
+    });
 });

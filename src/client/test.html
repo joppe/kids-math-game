@@ -2,23 +2,27 @@
 <html>
 <head>
     <title>Test</title>
-    <script type="text/javascript" src="js/aap/aap.js"></script>
+    <script type="text/javascript" src="../../bower-components/jquery/jquery.min.js"></script>
     <script type="text/javascript">
-        window.onload = function () {
-            var m = new Aap.Model({
-                    foo: 'bar',
-                    bar: 2
-                });
+        jQuery(function ($) {
+            var $target = $('#test'),
+                html = $target.html(),
+                dataRe = /data\-([^=]+)/g;
 
-            m.on('change', function () {
-                console.log('change!');
+            html.replace(dataRe, function (match, key) {
+                console.log(key);
             });
-
-            m.set('foo2', 'foobar');
-        };
+//            console.log(html.match(dataRe));
+        });
     </script>
 </head>
 <body>
-
+    <div id="test">
+        <p data-foo="bar">lala</p>
+        <ul>
+            <li>1</li>
+            <li class="bar" data-hello="world">1</li>
+        </ul>
+    </div>
 </body>
 </html>

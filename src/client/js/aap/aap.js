@@ -117,6 +117,18 @@ Aap.Object = {
         });
 
         return destination;
+    },
+
+    keys: function (object) {
+        'use strict';
+
+        var keys = [];
+
+        Aap.Object.forEach(object, function (value, key) {
+            keys.push(key);
+        });
+
+        return keys;
     }
 };
 
@@ -128,32 +140,39 @@ Aap.Event = (function () {
     return {
         events: {},
 
-        on: function (eventNames, callback) {
+        on: function (eventNames, callback, context) {
             Aap.Array.forEach(eventNames.split(EVENT_NAME_SEPERATOR), function (eventName) {
                 if (this.events[eventName] === undefined) {
                     this.events[eventName] = [];
                 }
 
-                this.events[eventName].push(callback);
+                this.events[eventName].push({
+                    callback: callback,
+                    context: context
+                });
             }, this);
 
             return this;
         },
 
-        off: function (eventNames, callback) {
-            Aap.Array.forEach(eventNames.split(EVENT_NAME_SEPERATOR), function (eventName) {
-                var index;
+        off: function (eventNames, callback, context) {
+            eventNames = eventNames ? eventNames.split(EVENT_NAME_SEPERATOR) : Aap.Object.keys(this.events);
 
-                if (this.events[eventName]) {
-                    if (callback !== undefined) {
-                        index = Aap.Array.indexOf(this.events[eventName], callback);
+            Aap.Array.forEach(eventNames, function (eventName) {
+                var retain = [];
 
-                        if (index !== -1) {
-                            this.events[eventName].splice(index, 1);
+                if (callback || context) {
+                    Aap.Array.forEach(this.events[eventName], function (listener) {
+                        if ((!callback || callback !== listener.callback) || (!context || context !== listener.context)) {
+                            retain.push(listener);
                         }
-                    } else {
-                        delete this.events[eventName];
-                    }
+                    });
+                }
+
+                if (retain.length > 0) {
+                    this.events[eventName] = retain;
+                } else {
+                    delete this.events[eventName];
                 }
             }, this);
 
@@ -167,7 +186,7 @@ Aap.Event = (function () {
 
             Aap.Array.forEach(eventNames.split(EVENT_NAME_SEPERATOR), function (eventName) {
                 Aap.Array.forEach(this.events[eventName], function (listener) {
-                    listener.apply(null, args);
+                    listener.callback.apply(listener.context, args);
                 });
             }, this);
 
@@ -226,6 +245,44 @@ Aap.Model = (function () {
     Aap.Object.extend(model.prototype, Aap.Event);
 
     return model;
+}());
+
+Aap.View = (function () {
+    'use strict';
+
+    var view;
+
+    view = Aap.Object.Class({
+        __constructor: function (scope, $element) {
+            this.scope = scope;
+            this.$element = $element;
+        },
+
+        __destructor: function () {
+            this.scope.off(null, null, this);
+        },
+
+        render: function () {
+            var data = this.$element.data();
+
+            console.log(data);
+        }
+    });
+
+    return view;
+}());
+Aap.View.bindings = (function () {
+    'use strict';
+
+    var bindings = {};
+
+    return {
+        add: function (identifier, binding) {
+            bindings[identifier] = binding;
+
+            return this;
+        }
+    };
 }());
 
 Aap.Kernel = (function () {
