@@ -1,4 +1,3 @@
-/*
 describe('Array checking', function () {
     describe('foreach', function () {
         it('should handle an array', function () {
@@ -36,4 +35,4 @@ describe('Array checking', function () {
             expect(Aap.Array.indexOf(a, 1, 2)).toBe(4);
         });
     });
-});*/
+});

@@ -1,4 +1,3 @@
-/*
 describe('Object checking', function () {
     describe('extend', function () {
         it('one object properties to another', function () {
@@ -21,4 +20,4 @@ describe('Object checking', function () {
             expect(Aap.Object.extend(t, s)).toEqual({foo: 'bar'});
         });
     });
-});*/
+});

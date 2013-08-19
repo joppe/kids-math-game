@@ -1,4 +1,3 @@
-/*
 describe('Type checking', function () {
     describe('isArray', function () {
         it('to return true on an empty array', function () {
@@ -77,4 +76,4 @@ describe('Type checking', function () {
             expect(Aap.Type.isInt(3.14)).toBe(false);
         });
     });
-});*/
+});

@@ -28,7 +28,7 @@ describe('Model checking', function () {
     describe('get', function () {
         it('must return the set value', function () {
             var m = new Aap.Model();
-            
+
             m.set('foo', 'bar');
 
             expect(m.get('foo')).toEqual('bar');
