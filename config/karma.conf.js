@@ -32,7 +32,7 @@ files = [
         included: false,
         served: true
     },
-    'src/*.js',
+    'src/client/js/**/*.js',
     'test/unit/*.js'
 ];
 
@@ -82,7 +82,7 @@ autoWatch = true;
 // - Safari (only Mac)
 // - PhantomJS
 // - IE (only Windows)
-browsers = ['Chrome'];
+browsers = ['PhantomJS'];
 
 
 // If browser does not capture in given timeout [ms], kill it
