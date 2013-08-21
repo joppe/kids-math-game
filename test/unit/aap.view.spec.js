@@ -1,0 +1,2 @@
+describe('View checking', function () {
+});

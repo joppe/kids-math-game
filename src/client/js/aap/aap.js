@@ -250,12 +250,13 @@ Aap.Model = (function () {
 Aap.View = (function () {
     'use strict';
 
-    var view;
+    var view,
+        DATA_RE = /data\-([^=]+)/g;
 
     view = Aap.Object.Class({
-        __constructor: function (scope, $element) {
+        __constructor: function (scope, template) {
             this.scope = scope;
-            this.$element = $element;
+            this.template = template;
         },
 
         __destructor: function () {
@@ -263,8 +264,12 @@ Aap.View = (function () {
         },
 
         render: function () {
-            var data = this.$element.data();
+            var html = this.$element.html(),
+                dataAttributes = [];
 
+            html.replace(DATA_RE, function (match, dataAttribute) {
+                dataAttributes.push(dataAttribute);
+            });
             console.log(data);
         }
     });
@@ -277,6 +282,10 @@ Aap.View.bindings = (function () {
     var bindings = {};
 
     return {
+        get: function (identifier) {
+            return bindings[identifier];
+        },
+
         add: function (identifier, binding) {
             bindings[identifier] = binding;
 
@@ -284,6 +293,15 @@ Aap.View.bindings = (function () {
         }
     };
 }());
+Aap.View.bindings.add('text', function ($element, attribute, model) {
+    'use strict';
+
+    $element.text(model.get(attribute));
+
+    model.on('change:' + attribute, function () {
+        $element.text(model.get(attribute));
+    });
+});
 
 Aap.Kernel = (function () {
     'use strict';
