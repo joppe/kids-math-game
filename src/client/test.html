@@ -3,24 +3,27 @@
 <head>
     <title>Test</title>
     <script type="text/javascript" src="bower-components/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="bower-components/template/src/template.min.js"></script>
+    <script type="text/javascript" src="js/aap/aap.js"></script>
     <script type="text/javascript">
         jQuery(function ($) {
-            var $target = $('#test'),
-                html = $target.html(),
-                dataRe = /data\-([^=]+)/g;
+            var $element = $('#test'),
+                v;
 
-            html.replace(dataRe, function (match, key) {
-                console.log(key);
+            window.m = new Aap.Model({
+                name: 'foo'
             });
-//            console.log(html.match(dataRe));
+
+            v = new Aap.View($element, m);
+            v.render();
         });
     </script>
 </head>
 <body>
     <div id="test">
-        <p data-foo="bar">lala</p>
+        <p data-text="name">lala</p>
         <ul>
-            <li>1</li>
+            <li><input type="text" data-value="name"></li>
             <li class="bar" data-hello="world">1</li>
         </ul>
     </div>

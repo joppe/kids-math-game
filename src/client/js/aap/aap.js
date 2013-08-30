@@ -132,6 +132,16 @@ Aap.Object = {
     }
 };
 
+Aap.Function = (function () {
+    'use strict';
+
+    return {
+        getArguments: function () {
+
+        }
+    };
+}());
+
 Aap.Event = (function () {
     'use strict';
 
@@ -230,7 +240,7 @@ Aap.Model = (function () {
                 attributes[attribute] = value;
 
                 if (value !== oldValue && options.silent === false) {
-                    this.trigger('change', attribute, value);
+                    this.trigger('change:' + attribute, value);
                 }
             }
 
@@ -247,36 +257,58 @@ Aap.Model = (function () {
     return model;
 }());
 
-Aap.View = (function () {
+Aap.View = (function ($) {
     'use strict';
 
     var view,
-        DATA_RE = /data\-([^=]+)/g;
+        createBindings;
+
+    createBindings = (function () {
+        var DATA_RE = /data\-([^=]+)/g;
+
+        return function ($element, model) {
+            var bindings = [],
+                html = $element.html();
+
+            html.replace(DATA_RE, function (match, key) {
+                if (Aap.Binding.exists(key)) {
+                    $element.find('[' + match + ']').each(function () {
+                        var $element = $(this);
+
+                        bindings.push(Aap.Binding.get(key)($element, $element.data(key), model));
+                    });
+                }
+            });
+
+            return bindings;
+        };
+    }());
 
     view = Aap.Object.Class({
-        __constructor: function (scope, template) {
+        __constructor: function ($element, scope) {
+            this.$element = $element;
             this.scope = scope;
-            this.template = template;
+            this.bindings = [];
         },
 
         __destructor: function () {
-            this.scope.off(null, null, this);
+            Aap.Array.forEach(this.bindings, function (binding) {
+                binding.__destructor();
+            });
+            this.bindings = [];
         },
 
         render: function () {
-            var html = this.$element.html(),
-                dataAttributes = [];
+            this.bindings = createBindings(this.$element, this.scope);
 
-            html.replace(DATA_RE, function (match, dataAttribute) {
-                dataAttributes.push(dataAttribute);
-            });
-            console.log(data);
+            return this;
         }
     });
 
     return view;
-}());
-Aap.View.bindings = (function () {
+}(jQuery));
+
+Aap.Binding = (function () {
     'use strict';
 
     var bindings = {};
@@ -286,6 +318,10 @@ Aap.View.bindings = (function () {
             return bindings[identifier];
         },
 
+        exists: function (identifier) {
+            return bindings[identifier] !== undefined;
+        },
+
         add: function (identifier, binding) {
             bindings[identifier] = binding;
 
@@ -293,15 +329,59 @@ Aap.View.bindings = (function () {
         }
     };
 }());
-Aap.View.bindings.add('text', function ($element, attribute, model) {
+Aap.Binding.add('text', (function () {
     'use strict';
 
-    $element.text(model.get(attribute));
+    var Binding = Aap.Object.Class({
+        __constructor: function ($element, attribute, model) {
+            this.$element = $element;
+            this.attribute = attribute;
+            this.model = model;
 
-    model.on('change:' + attribute, function () {
-        $element.text(model.get(attribute));
+            this.model.on('change:' + this.attribute, this.update, this);
+        },
+
+        __destructor: function () {
+            this.model.off(null, null, this);
+        },
+
+        update: function () {
+            this.$element.text(this.model.get(this.attribute));
+        }
     });
-});
+
+    return function ($element, attribute, model) {
+        return new Binding($element, attribute, model);
+    };
+})());
+Aap.Binding.add('value', (function () {
+    'use strict';
+
+    var Binding = Aap.Object.Class({
+        __constructor: function ($element, attribute, model) {
+            this.$element = $element;
+            this.attribute = attribute;
+            this.model = model;
+
+            this.$element.on('keyup', function () {
+                model.set(attribute, $element.val());
+            });
+            this.model.on('change:' + this.attribute, this.update, this);
+        },
+
+        __destructor: function () {
+            this.model.off(null, null, this);
+        },
+
+        update: function () {
+            this.$element.val(this.model.get(this.attribute));
+        }
+    });
+
+    return function ($element, attribute, model) {
+        return new Binding($element, attribute, model);
+    };
+})());
 
 Aap.Kernel = (function () {
     'use strict';
