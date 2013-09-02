@@ -43,8 +43,8 @@ describe('Model checking', function () {
                 }),
                 s;
 
-            m.on('change', function (name, value) {
-                s = 'set:' + name + '=' + value;
+            m.on('change:foo', function (value) {
+                s = 'set:foo=' + value;
             });
 
             m.set('foo', 'bar');
