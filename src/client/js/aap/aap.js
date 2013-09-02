@@ -40,6 +40,16 @@ Aap.String = (function () {
 }());
 
 Aap.Array = {
+    reduce: function (array, iterator, memo, context) {
+        'use strict';
+
+        Aap.Array.forEach(array, function (value, index) {
+            memo = iterator.call(context, memo, value, index, array);
+        });
+
+        return memo;
+    },
+
     map: function (array, iterator, context) {
         'use strict';
 
@@ -238,11 +248,12 @@ Aap.Event = (function () {
 Aap.Model = (function () {
     'use strict';
 
-    var attributes = {},
-        model;
+    var Model;
 
-    model = Aap.Object.Class({
+    Model = Aap.Object.Class({
         __constructor: function (properties) {
+            this.attributes = {};
+
             if (properties !== undefined) {
                 this.set(properties, null, {
                     silent: true
@@ -251,7 +262,7 @@ Aap.Model = (function () {
         },
 
         get: function (attribute) {
-            return attributes[attribute];
+            return this.attributes[attribute];
         },
 
         set: function (attribute, value, options) {
@@ -266,8 +277,8 @@ Aap.Model = (function () {
                     this.set(name, value, options);
                 }, this);
             } else {
-                oldValue = attributes[attribute];
-                attributes[attribute] = value;
+                oldValue = this.attributes[attribute];
+                this.attributes[attribute] = value;
 
                 if (value !== oldValue && options.silent === false) {
                     this.trigger('change:' + attribute, value);
@@ -278,13 +289,30 @@ Aap.Model = (function () {
         },
 
         export: function () {
-            return attributes;
+            return this.attributes;
         }
     });
 
-    Aap.Object.extend(model.prototype, Aap.Event);
+    Aap.Object.extend(Model.prototype, Aap.Event);
 
-    return model;
+    return Model;
+}());
+
+Aap.Collection = (function () {
+    'use strict';
+
+    var Collection;
+
+    Collection = Aap.Object.Class({
+        __constructor: function (model, models) {
+            this.model = model;
+            this.models = models || [];
+        }
+    });
+
+    Aap.Object.extend(Collection.prototype, Aap.Event);
+
+    return Collection;
 }());
 
 Aap.View = (function ($) {
@@ -404,13 +432,9 @@ Aap.Binding.Base = (function () {
         },
 
         getValue: function () {
-            var value = this.model.get(this.attribute);
-
-            Aap.Array.forEach(this.filters, function (filter) {
-                value = filter(value);
-            });
-
-            return value;
+            return Aap.Array.reduce(this.filters, function (memo, filter) {
+                return filter(memo);
+            }, this.model.get(this.attribute));
         }
     });
 
