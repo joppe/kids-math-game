@@ -65,11 +65,19 @@ Aap.Array = {
     forEach: function (array, iterator, context) {
         'use strict';
 
-        var i;
+        var i,
+            length,
+            ret;
 
         if (Aap.Type.isArray(array)) {
-            for (i = 0; i < array.length; i += 1) {
-                iterator.call(context, array[i], i, array);
+            length = array.length;
+
+            for (i = 0; i < length; i += 1) {
+                ret = iterator.call(context, array[i], i, array);
+
+                if (ret === false) {
+                    return;
+                }
             }
         }
     },
@@ -524,6 +532,75 @@ Aap.Filter.add('ucwords', (function () {
         };
     };
 }()));
+
+Aap.Router = (function ($) {
+    'use strict';
+
+    var Router,
+        listen,
+        routes = [];
+
+    function getHash() {
+        return window.location.hash.replace('#', '');
+    }
+
+    listen = (function () {
+        var listening = false;
+
+        return function () {
+            var route;
+
+            if (!listening) {
+                $(window).on('hashchange', function () {
+                    route = Router.find(getHash());
+
+                    if (route !== null) {
+                        route.callback();
+                    }
+                });
+
+                listening = true;
+            }
+        };
+    }());
+
+    function createRegEx(url) {
+        url = url.replace(/{\w+}/g, '[\\w\\-]+');
+        url = url.replace(/(\.|\/)/g, function (match) {
+            return '\\' + match;
+        });
+
+        return new RegExp(url, 'gi');
+    }
+
+    Router = {
+        add: function (url, callback) {
+            routes.push({
+                url: url,
+                callback: callback,
+                re: createRegEx(url)
+            });
+            listen();
+        },
+
+        find: function (url) {
+            var route = null;
+
+            Aap.Array.forEach(routes, function (value) {
+                if (value.re.test(url)) {
+                    route = value;
+                    return false;
+                }
+            });
+
+            return route;
+        }
+    };
+
+    Router = Aap.Object.extend(Router, Aap.Event);
+
+    return Router;
+}(jQuery));
 
 Aap.Kernel = (function () {
     'use strict';
