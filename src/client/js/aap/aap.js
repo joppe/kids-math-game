@@ -178,6 +178,12 @@ Aap.Function = (function () {
             });
 
             return args;
+        },
+
+        proxy: function (func, context) {
+            return function () {
+                func.apply(context, arguments);
+            };
         }
     };
 }());
@@ -459,12 +465,12 @@ Aap.Binding.add('text', (function () {
         return new Binding($element, attribute, model, filters);
     };
 })());
-Aap.Binding.add('value', (function ($) {
+Aap.Binding.add('value', (function () {
     'use strict';
 
     var Binding = Aap.Object.Class({
         addEventListeners: function () {
-            this.$element.on('keyup', $.proxy(this.onChange, this));
+            this.$element.on('keyup', Aap.Function.proxy(this.onChange, this));
             this.model.on('change:' + this.attribute, this.update, this);
         },
 
@@ -482,7 +488,7 @@ Aap.Binding.add('value', (function ($) {
     return function ($element, attribute, model, filters) {
         return new Binding($element, attribute, model, filters);
     };
-})(jQuery));
+})());
 
 Aap.Filter = (function () {
     'use strict';
