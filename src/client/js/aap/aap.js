@@ -537,12 +537,10 @@ Aap.Router = (function ($) {
     'use strict';
 
     var Router,
+        PARAMETER_RE = /{(\w+)}/gi,
+        ESCAPE_RE = /\.|\//,
         listen,
         routes = [];
-
-    function getHash() {
-        return window.location.hash.replace('#', '');
-    }
 
     listen = (function () {
         var listening = false;
@@ -552,11 +550,15 @@ Aap.Router = (function ($) {
 
             if (!listening) {
                 $(window).on('hashchange', function () {
-                    route = Router.find(getHash());
+                    route = Router.find(Router.getHash(), function (route, parameters) {
+                        var args = [];
 
-                    if (route !== null) {
-                        route.callback();
-                    }
+                        Aap.Array.map(route.args, function (arg) {
+                            args.push(parameters[arg]);
+                        });
+
+                        route.callback.apply(route.context, args);
+                    });
                 });
 
                 listening = true;
@@ -564,36 +566,60 @@ Aap.Router = (function ($) {
         };
     }());
 
-    function createRegEx(url) {
-        url = url.replace(/{\w+}/g, '[\\w\\-]+');
-        url = url.replace(/(\.|\/)/g, function (match) {
-            return '\\' + match;
-        });
-
-        return new RegExp(url, 'gi');
-    }
-
     Router = {
-        add: function (url, callback) {
-            routes.push({
-                url: url,
-                callback: callback,
-                re: createRegEx(url)
+        getHash: function () {
+            return window.location.hash.replace('#', '');
+        },
+
+        createRegEx: function (url) {
+            url = url.replace(PARAMETER_RE, '([\\w\\-]+)');
+            url = url.replace(ESCAPE_RE, function (match) {
+                return '\\' + match;
             });
+
+            return new RegExp('^' + url + '$', 'i');
+        },
+
+        getParameters: function (url) {
+            var parameters = [];
+
+            url.replace(PARAMETER_RE, function (match, group) {
+                parameters.push(group);
+            });
+
+            return parameters;
+        },
+
+        add: function (url, callback, context) {
+            var route = {
+                    url: url,
+                    paramters: this.getParameters(url),
+                    re: this.createRegEx(url),
+                    callback: callback,
+                    args: Aap.Function.getArgumentNames(callback),
+                    context: context
+                };
+
+            routes.push(route);
             listen();
         },
 
-        find: function (url) {
-            var route = null;
+        find: function (url, callback) {
+            Aap.Array.forEach(routes, function (route) {
+                var matches = url.match(route.re),
+                    parameters = {};
 
-            Aap.Array.forEach(routes, function (value) {
-                if (value.re.test(url)) {
-                    route = value;
+                if (matches) {
+                    matches.shift();
+
+                    Aap.Array.map(matches, function (match, i) {
+                        parameters[route.paramters[i]] = match;
+                    });
+
+                    callback(route, parameters);
                     return false;
                 }
             });
-
-            return route;
         }
     };
 

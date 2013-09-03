@@ -10,12 +10,14 @@
             var $element = $('#test'),
                 v;
 
-            Aap.Router.add('/wiki/Clean_URL/{page}/1.html', function (page) {
-                console.log('foo');
+            Aap.Router.add('/wiki/Clean_URL/{page}/1.{type}', function (page, type) {
+                console.log(page, type);
             });
 
-            Aap.Router.find('/wiki/Clean_URL/foo-bar/1.html');
-
+            Aap.Router.find('/wiki/Clean_URL/foo-bar/1.html', function (r, args) {
+                console.log(r);
+                console.log(args);
+            });
             window.m = new Aap.Model({
                 name: 'foo'
             });
