@@ -3,6 +3,6 @@ web/js
 .idea/
 node_modules/
 web/vendor
-!web/vendor/systemjs/
-!web/vendor/es6-module-loader/
-!web/vendor/react/
+!web/vendor/systemjs
+!web/vendor/es6-module-loader
+!web/vendor/react
