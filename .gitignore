@@ -1,4 +1,8 @@
-bower-components/
+web/js
+!web/js/system.conf.js
 .idea/
-config/google-chrome
-config/phantomjs
+node_modules/
+web/vendor
+!web/vendor/systemjs/
+!web/vendor/es6-module-loader/
+!web/vendor/react/
