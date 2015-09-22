@@ -18,20 +18,20 @@ React.Backbone = {
                 this.forceUpdate();
             });
         }, this)
-    }
+    },
 
     componentDidMount() {
         this.listenToProps(this.props);
-    }
+    },
 
     componentWillReceiveProps(nextProps) {
         this.stopListening();
         this.listenToProps(nextProps);
-    }
+    },
 
     componentWillUnmount: function() {
         this.stopListening();
-    }
+    },
 };
 
 _.extend(React.Backbone, Backbone.Events);
