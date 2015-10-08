@@ -31,7 +31,7 @@ React.Backbone = {
 
     componentWillUnmount: function() {
         this.stopListening();
-    },
+    }
 };
 
 _.extend(React.Backbone, Backbone.Events);
