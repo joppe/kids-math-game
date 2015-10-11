@@ -8,8 +8,8 @@
     "test": "test"
   },
   "scripts": {
-    "babel": "babel es6 --stage 1 --out-dir web/js --modules system",
-    "babel-watch": "babel es6 --stage 1 --watch --out-dir web/js --modules system"
+    "babel": "babel src --stage 1 --out-dir web/js --modules system",
+    "babel-watch": "babel src --stage 1 --watch --out-dir web/js --modules system"
   },
   "repository": {
     "type": "git",
